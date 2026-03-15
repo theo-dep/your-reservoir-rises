@@ -2,12 +2,49 @@ import { ref, readonly } from "vue";
 import { GOOGLE_CONFIG } from "@/config/google.ts";
 import type { TokenClient, TokenResponse } from "@/types/google.d.ts";
 
+const STORAGE_KEY = "gapi_token";
+
 const gapiInited = ref(false);
 const gisInited = ref(false);
 const isSignedIn = ref(false);
+const isTokenRestored = ref(false);
 const isReady = ref(false);
 
 let tokenClient: TokenClient | null = null;
+
+interface StoredToken {
+  access_token: string;
+  expires_at: number; // ms
+}
+
+function saveToken(access_token: string, expires_in: number): void {
+  const stored: StoredToken = {
+    access_token: access_token,
+    expires_at: Date.now() + expires_in - 5 * 60, // 55 min (Google API token expires after 1 hour)
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+}
+
+function loadToken(): StoredToken | null {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return null;
+  try {
+    const stored: StoredToken = JSON.parse(raw);
+    if (Date.now() > stored.expires_at) {
+      clearToken();
+      return null;
+    }
+    return stored;
+  } catch {
+    clearToken();
+    return null;
+  }
+}
+
+function clearToken(): void {
+  localStorage.removeItem(STORAGE_KEY);
+  isTokenRestored.value = false;
+}
 
 function loadScript(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -57,6 +94,13 @@ function maybeSetReady(): void {
 
 async function initialize(): Promise<void> {
   await Promise.all([initGapi(), initGis()]);
+
+  // Restore the saved token if valid
+  const stored = loadToken();
+  if (stored) {
+    window.gapi.client.setToken(stored.access_token);
+    isTokenRestored.value = true;
+  }
 }
 
 // Sign in the user upon button click.
@@ -71,6 +115,7 @@ function signIn(): Promise<TokenResponse> {
         reject(resp);
         return;
       }
+      saveToken(resp.access_token, resp.expires_in);
       isSignedIn.value = true;
       resolve(resp);
     };
@@ -79,7 +124,7 @@ function signIn(): Promise<TokenResponse> {
     // when establishing a new session.
     // OR
     // Skip display of account chooser and consent dialog for an existing session.
-    const prompt = window.gapi.client.getToken() === null ? "consent" : "";
+    const prompt = window.gapi.client.getToken() === null ? "consent" : "none";
     tokenClient.requestAccessToken({ prompt });
   });
 }
@@ -90,14 +135,16 @@ function signOut(): void {
   if (token) {
     window.google.accounts.oauth2.revoke(token.access_token);
     window.gapi.client.setToken("");
-    isSignedIn.value = false;
   }
+  clearToken();
+  isSignedIn.value = false;
 }
 
 export function useGoogleAuth() {
   return {
     isReady: readonly(isReady),
     isSignedIn: readonly(isSignedIn),
+    isTokenRestored: readonly(isTokenRestored),
     initialize,
     signIn,
     signOut,

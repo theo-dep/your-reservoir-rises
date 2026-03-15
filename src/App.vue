@@ -51,10 +51,17 @@ import { useGoogleAuth } from "@/composables/useGoogleAuth.ts";
 import { useDriveFiles } from "@/composables/useDriveFiles.ts";
 import DriveFileList from "@/components/DriveFileList.vue";
 
-const { isReady, isSignedIn, initialize, signIn, signOut } = useGoogleAuth();
+const { isReady, isSignedIn, isTokenRestored, initialize, signIn, signOut } =
+  useGoogleAuth();
 const { files, loading, error, fetchFiles, clearFiles } = useDriveFiles();
 
-onMounted(() => initialize());
+onMounted(async () => {
+  await initialize();
+  // need popup permission
+  if (isTokenRestored.value) {
+    await handleSignIn();
+  }
+});
 
 async function handleSignIn(): Promise<void> {
   await signIn();
