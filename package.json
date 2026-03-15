@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite --host=127.0.0.1",
     "build": "npm run type-check && vite build",
-    "preview": "vite preview",
+    "preview": "vite preview --host=127.0.0.1",
     "type-check": "vue-tsc -b",
     "format": "prettier . --write",
     "lint": "eslint --fix src"
