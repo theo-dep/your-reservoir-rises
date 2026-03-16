@@ -13,12 +13,14 @@ interface GapiClient {
   init(options: { discoveryDocs: string[] }): Promise<void>;
   getToken(): { access_token: string } | null;
   setToken(token: string): void;
-  drive: {
-    files: {
-      list(params: {
-        pageSize: number;
-        fields: string;
-      }): Promise<{ result: { files: DriveFile[] } }>;
+  sheets: {
+    spreadsheets: {
+      values: {
+        get(params: {
+          spreadsheetId: string;
+          range: string;
+        }): Promise<{ result: { values: string[][] } }>;
+      };
     };
   };
 }
@@ -46,9 +48,9 @@ declare global {
   }
 }
 
-export interface DriveFile {
-  id: string;
-  name: string;
-  mimeType: string;
-  modifiedTime?: string;
+interface SheetTable {
+  headers: string[];
+  values: string[][];
 }
+
+export { TokenClient, TokenResponse, SheetTable };

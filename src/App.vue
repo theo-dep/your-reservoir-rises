@@ -6,7 +6,7 @@
         <span v-if="!isReady" class="muted">Initialisation…</span>
         <template v-else-if="!isSignedIn">
           <button class="btn btn-primary" @click="handleSignIn">
-            Autoriser l'accès
+            Connection
           </button>
         </template>
         <template v-else>
@@ -18,15 +18,15 @@
 
     <main>
       <div v-if="!isSignedIn && isReady" class="welcome">
-        <p class="welcome-title">
-          Connectez-vous pour explorer vos fichiers Google Drive.
-        </p>
+        <p class="welcome-title">Connectez-vous pour enregistrer une montée.</p>
       </div>
       <template v-else-if="isSignedIn">
         <p class="section-label">
-          {{ files.length }} fichier{{ files.length !== 1 ? "s" : "" }}
+          {{ table.values.length }} entr{{
+            table.values.length !== 1 ? "ies" : "y"
+          }}
         </p>
-        <DriveFileList :files="files" :loading="loading" :error="error" />
+        <TableForm :table="table" :loading="loading" :error="error" />
       </template>
     </main>
 
@@ -48,12 +48,12 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { useGoogleAuth } from "@/composables/useGoogleAuth.ts";
-import { useDriveFiles } from "@/composables/useDriveFiles.ts";
-import DriveFileList from "@/components/DriveFileList.vue";
+import { useSheetFile } from "@/composables/useSheetFile";
+import TableForm from "@/components/TableForm.vue";
 
 const { isReady, isSignedIn, isTokenRestored, initialize, signIn, signOut } =
   useGoogleAuth();
-const { files, loading, error, fetchFiles, clearFiles } = useDriveFiles();
+const { table, loading, error, fetchTable, clearValues } = useSheetFile();
 
 onMounted(async () => {
   await initialize();
@@ -65,16 +65,16 @@ onMounted(async () => {
 
 async function handleSignIn(): Promise<void> {
   await signIn();
-  await fetchFiles();
+  await handleRefresh();
 }
 
 async function handleRefresh(): Promise<void> {
-  await fetchFiles();
+  await fetchTable("Parcours");
 }
 
 function handleSignOut(): void {
   signOut();
-  clearFiles();
+  clearValues();
 }
 </script>
 

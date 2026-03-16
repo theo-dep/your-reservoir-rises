@@ -1,11 +1,11 @@
 # Your Reservoir Rises
 
-Application to register a rise for the Challenge du réservoir.
+Application to register a rise for the "Challenge du réservoir".
 
 ## Prerequisites
 
 - Node.js ≥ 18
-- A Google Cloud project with activated API Drive ([console](https://console.developers.google.com/))
+- A Google Cloud project with activated API Sheet ([console](https://console.developers.google.com/))
 - An OAuth 2.0 Client ID of type **Application Web**
 
 ## Installation
@@ -16,13 +16,14 @@ npm install
 cp .env.example .env
 ```
 
-Enter your `CLIENT_ID` in `.env` :
+Enter your `CLIENT_ID` and a Google Sheet ID of "Vos montées des réservoirs" in `.env` :
 
 ```env
 VITE_GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
+VITE_GOOGLE_SHEET_ID=your_google_sheet_id
 ```
 
-Follow the [Google Javascript quickstart guide](https://developers.google.com/workspace/drive/api/quickstart/js).
+Follow the [Google Javascript quickstart guide](https://developers.google.com/workspace/sheets/api/quickstart/js).
 
 ## Commandes
 
