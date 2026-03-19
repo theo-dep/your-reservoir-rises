@@ -47,13 +47,14 @@
 
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { useGoogleAuth } from "@/composables/useGoogleAuth.ts";
-import { useSheetFile } from "@/composables/useSheetFile";
+import { useGoogleAuth } from "@/composables/useGoogleAuth";
+import { useParcoursTable } from "@/composables/useParcoursTable";
 import TableForm from "@/components/TableForm.vue";
 
 const { isReady, isSignedIn, isTokenRestored, initialize, signIn, signOut } =
   useGoogleAuth();
-const { table, loading, error, fetchTable, clearValues } = useSheetFile();
+const { table, loading, error, fetchParcoursTable, clearParcoursValues } =
+  useParcoursTable();
 
 onMounted(async () => {
   await initialize();
@@ -69,12 +70,12 @@ async function handleSignIn(): Promise<void> {
 }
 
 async function handleRefresh(): Promise<void> {
-  await fetchTable("Parcours");
+  await fetchParcoursTable();
 }
 
 function handleSignOut(): void {
   signOut();
-  clearValues();
+  clearParcoursValues();
 }
 </script>
 

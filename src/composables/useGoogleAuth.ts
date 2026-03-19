@@ -1,6 +1,6 @@
 import { ref, readonly } from "vue";
-import { GOOGLE_CONFIG } from "@/config/google.ts";
-import type { TokenClient, TokenResponse } from "@/types/google.d.ts";
+import { GOOGLE_CONFIG } from "@/config/google";
+import type { TokenClient, TokenResponse } from "@/types/google";
 
 const STORAGE_KEY = "gapi_token";
 

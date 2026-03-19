@@ -48,9 +48,4 @@ declare global {
   }
 }
 
-interface SheetTable {
-  headers: string[];
-  values: string[][];
-}
-
-export { TokenClient, TokenResponse, SheetTable };
+export { TokenClient, TokenResponse };

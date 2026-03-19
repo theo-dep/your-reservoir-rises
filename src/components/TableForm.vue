@@ -25,11 +25,11 @@
 </template>
 
 <script setup lang="ts">
-import type { SheetTable } from "@/types/google.d.ts";
+import type { Table } from "@/types/sheet";
 import type { DeepReadonly } from "vue";
 
 defineProps<{
-  table: DeepReadonly<SheetTable>;
+  table: DeepReadonly<Table>;
   loading: boolean;
   error: string | null;
 }>();
