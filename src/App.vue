@@ -9,10 +9,10 @@
             Connection
           </button>
         </template>
-        <template v-else>
+        <div v-else class="btnContainer">
           <button class="btn" @click="handleRefresh">Actualiser</button>
           <button class="btn" @click="handleSignOut">Déconnexion</button>
-        </template>
+        </div>
       </div>
     </header>
 
@@ -21,7 +21,12 @@
         <p class="welcome-title">Connectez-vous pour enregistrer une montée.</p>
       </div>
       <template v-else-if="isSignedIn">
-        <TableForm :parcours="parcours" :loading="loading" :error="error" />
+        <TableForm
+          :parcours="parcours"
+          :boosts="boosts"
+          :loading="loading"
+          :error="error"
+        />
       </template>
     </main>
 
@@ -43,12 +48,12 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { useGoogleAuth } from "@/composables/useGoogleAuth";
-import { useParcoursTable } from "@/composables/useParcoursTable";
+import { useParcoursTable } from "@/composables/useTables";
 import TableForm from "@/components/TableForm.vue";
 
 const { isReady, isSignedIn, isTokenRestored, initialize, signIn, signOut } =
   useGoogleAuth();
-const { parcours, loading, error, fetchParcours, clearParcours } =
+const { parcours, boosts, loading, error, fetchParcours, clearParcours } =
   useParcoursTable();
 
 onMounted(async () => {
@@ -132,6 +137,7 @@ header {
   font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: -0.01em;
+  padding-right: 8px;
 }
 
 .controls {
@@ -151,6 +157,18 @@ main {
 }
 
 /* Buttons */
+.btnContainer {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr;
+}
+
+@media screen and (min-width: 560px) {
+  .btnContainer {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .btn {
   font-family: var(--font-sans);
   font-size: 0.85rem;

@@ -1,0 +1,52 @@
+.input,
+.select-wrap select {
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 12px;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--c-text);
+  background: var(--c-bg);
+  border: 0.5px solid var(--c-line);
+  border-radius: 4px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.input:hover,
+.select-wrap select:hover {
+  border-color: var(--c-muted);
+}
+
+.input:focus,
+.select-wrap select:focus {
+  border-color: var(--c-text);
+  box-shadow: 0 0 0 3px rgba(45, 90, 61, 0.08);
+}
+
+.select-wrap select,
+.input[type="date"],
+.input[type="time"] {
+  cursor: pointer;
+}
+
+.input[type="date"]::-webkit-calendar-picker-indicator,
+.input[type="time"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  /* https://angel-rs.github.io/css-color-filter-generator/ --c-text */
+  filter: invert(88%) sepia(22%) saturate(400%) hue-rotate(5deg)
+    brightness(102%) contrast(90%);
+}
+
+.input[type="date"]:hover::-webkit-calendar-picker-indicator,
+.input[type="time"]:hover::-webkit-calendar-picker-indicator {
+  /* https://angel-rs.github.io/css-color-filter-generator/ --c-muted */
+  filter: invert(65%) sepia(25%) saturate(600%) hue-rotate(55deg)
+    brightness(95%) contrast(85%);
+}

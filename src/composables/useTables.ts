@@ -4,6 +4,7 @@ import { useSheetFile } from "@/composables/useSheetFile";
 const { fetchTable } = useSheetFile();
 
 const parcours = ref<string[]>([]);
+const boosts = ref<string[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
 
@@ -12,8 +13,13 @@ async function fetchParcours(): Promise<void> {
   error.value = null;
 
   try {
-    const record = await fetchTable("Parcours");
-    parcours.value = record["Nom"];
+    const [parcoursRecord, boostsRecord] = await Promise.all([
+      fetchTable("Parcours"),
+      fetchTable("Boosts"),
+    ]);
+
+    parcours.value = parcoursRecord["Nom"];
+    boosts.value = boostsRecord["Nom"];
   } catch (err: unknown) {
     error.value = err instanceof Error ? err.message : "Unknown error";
     parcours.value = [];
@@ -30,6 +36,7 @@ function clearParcours(): void {
 export function useParcoursTable() {
   return {
     parcours: readonly(parcours),
+    boosts: readonly(boosts),
     loading: readonly(loading),
     error: readonly(error),
     fetchParcours,
