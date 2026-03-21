@@ -20,7 +20,7 @@ interface StoredToken {
 function saveToken(access_token: string, expires_in: number): void {
   const stored: StoredToken = {
     access_token: access_token,
-    expires_at: Date.now() + expires_in - 5 * 60, // 55 min (Google API token expires after 1 hour)
+    expires_at: Date.now() + (expires_in - 5 * 60) * 1000, // 55 min (Google API token expires after 1 hour)
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
 }
