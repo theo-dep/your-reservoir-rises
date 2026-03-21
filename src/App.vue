@@ -21,12 +21,7 @@
         <p class="welcome-title">Connectez-vous pour enregistrer une montée.</p>
       </div>
       <template v-else-if="isSignedIn">
-        <p class="section-label">
-          {{ table.values.length }} entr{{
-            table.values.length !== 1 ? "ies" : "y"
-          }}
-        </p>
-        <TableForm :table="table" :loading="loading" :error="error" />
+        <TableForm :parcours="parcours" :loading="loading" :error="error" />
       </template>
     </main>
 
@@ -53,7 +48,7 @@ import TableForm from "@/components/TableForm.vue";
 
 const { isReady, isSignedIn, isTokenRestored, initialize, signIn, signOut } =
   useGoogleAuth();
-const { table, loading, error, fetchParcoursTable, clearParcoursValues } =
+const { parcours, loading, error, fetchParcours, clearParcours } =
   useParcoursTable();
 
 onMounted(async () => {
@@ -70,12 +65,12 @@ async function handleSignIn(): Promise<void> {
 }
 
 async function handleRefresh(): Promise<void> {
-  await fetchParcoursTable();
+  await fetchParcours();
 }
 
 function handleSignOut(): void {
   signOut();
-  clearParcoursValues();
+  clearParcours();
 }
 </script>
 
