@@ -59,13 +59,19 @@ const { parcours, boosts, loading, error, fetchParcours, clearParcours } =
 onMounted(async () => {
   await initialize();
   // need popup permission
-  if (isTokenRestored.value) {
+  if (isTokenRestored.value && !isSignedIn.value) {
     await handleSignIn();
   }
 });
 
 async function handleSignIn(): Promise<void> {
-  await signIn();
+  try {
+    await signIn();
+  } catch {
+    // in case of access denied, signOut and signIn
+    signOut();
+    await signIn();
+  }
   await handleRefresh();
 }
 
