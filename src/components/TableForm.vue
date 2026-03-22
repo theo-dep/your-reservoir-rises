@@ -8,6 +8,7 @@
         class="input"
         placeholder="Prénom"
         v-model.lazy.trim="firstName"
+        required
       />
 
       <input
@@ -15,23 +16,38 @@
         class="input"
         placeholder="Nom"
         v-model.lazy.trim="lastName"
+        required
       />
 
-      <input class="input" type="date" id="date" v-model="date" />
+      <input class="input" type="date" id="date" v-model="date" required />
 
-      <input class="input" type="time" id="time" step="1" v-model="time" />
+      <input
+        class="input"
+        type="time"
+        id="time"
+        step="1"
+        v-model="time"
+        required
+      />
 
-      <InputDropDown
+      <SingleSelect
         name="Parcours"
         :values="parcours"
         v-model="parcoursSelected"
+        :required="true"
       />
 
-      <InputDropDown name="Boosts" :values="boosts" v-model="boostSelected" />
+      <MultiSelect
+        name="Boosts"
+        :values="boosts"
+        v-model="boostsSelected"
+        :max="3"
+      />
 
       <textarea
         class="input textarea"
         v-model="comments"
+        id="comments"
         placeholder="Comments"
       ></textarea>
 
@@ -42,7 +58,8 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import InputDropDown from "@/components/InputDropDown.vue";
+import SingleSelect from "@/components/SingleSelect.vue";
+import MultiSelect from "@/components/MultiSelect.vue";
 
 defineProps<{
   parcours: readonly string[];
@@ -56,7 +73,7 @@ const lastName = ref<string>("");
 const date = ref<string>(new Date().toISOString().split("T")[0]);
 const time = ref<string>("");
 const parcoursSelected = ref<string>("");
-const boostSelected = ref<string>("");
+const boostsSelected = ref<string[]>([]);
 const comments = ref<string>("");
 </script>
 

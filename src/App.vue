@@ -88,6 +88,7 @@ function handleSignOut(): void {
   --c-muted: #8bae66;
   --c-line: #ebd5ab;
   --c-accent: #628141;
+  --c-disable: #757575;
   --font-serif: "Lora", Georgia, serif;
   --font-sans: "DM Sans", sans-serif;
 }
