@@ -1,66 +1,72 @@
 <template>
   <div v-if="loading" class="state">Chargement…</div>
   <div v-else-if="error" class="state state-error">⚠️ {{ error }}</div>
-  <form v-else class="container">
+  <form v-else class="container" @submit.prevent="handleSubmit">
     <input
       id="firstName"
+      v-model.lazy.trim="firstName"
       class="input"
       placeholder="Prénom"
-      v-model.lazy.trim="firstName"
       required
       @blur="handleValidate"
     />
 
     <input
       id="lastName"
+      v-model.lazy.trim="lastName"
       class="input"
       placeholder="Nom"
-      v-model.lazy.trim="lastName"
       required
       @blur="handleValidate"
     />
 
-    <input class="input" type="date" id="date" v-model="date" required />
+    <input id="date" v-model="date" class="input" type="date" required />
 
     <input
+      id="time"
+      v-model="time"
       class="input"
       type="time"
-      id="time"
       step="1"
-      v-model="time"
       required
     />
 
     <SingleSelect
+      v-model="parcoursSelected"
       name="Parcours"
       :values="parcours"
-      v-model="parcoursSelected"
       :required="true"
     />
 
     <MultiSelect
+      v-model="boostsSelected"
       name="Boosts"
       :values="boosts"
-      v-model="boostsSelected"
-      :max="3"
+      :max="BOOST_SIZE"
     />
 
     <textarea
-      class="input textarea"
-      v-model="comments"
       id="comments"
+      v-model="comments"
+      class="input textarea"
       placeholder="Comments"
     ></textarea>
 
-    <input
+    <button
       class="input submit"
       type="submit"
-      :value="validating ? 'Vérification…' : 'Envoyer'"
       :disabled="validating || nameValid === false"
-    />
+    >
+      {{ validating ? "Vérification…" : "Envoyer" }}
+    </button>
   </form>
 
   <p v-if="nameValid === false" class="error">⚠️ Nom ou prénom introuvable.</p>
+  <p v-if="riseSubmitted === false" class="error">
+    ⚠️ Échec de l'envoie de la montée.
+  </p>
+
+  <p v-if="riseSubmitted === true" class="success">✅ Montée enregistrée.</p>
 </template>
 
 <script setup lang="ts">
@@ -69,6 +75,7 @@ import SingleSelect from "@/components/SingleSelect.vue";
 import MultiSelect from "@/components/MultiSelect.vue";
 import { useNameValidation } from "@/composables/useNameValidation";
 import { useLocalName } from "@/composables/useLocalName";
+import { useSheetFile } from "@/composables/useSheetFile";
 
 defineProps<{
   parcours: readonly string[];
@@ -76,6 +83,8 @@ defineProps<{
   loading: boolean;
   error: string | null;
 }>();
+
+const BOOST_SIZE = 3;
 
 const { firstName, lastName } = useLocalName();
 
@@ -85,10 +94,36 @@ const parcoursSelected = ref<string>("");
 const boostsSelected = ref<string[]>([]);
 const comments = ref<string>("");
 
-const { nameValid, validating, validateName } = useNameValidation();
+const riseSubmitted = ref<boolean | null>(null);
+
+const { nameValid, validating, mergeName, validateName } = useNameValidation();
+
+const { appendRow } = useSheetFile();
 
 async function handleValidate(): Promise<void> {
   await validateName(firstName.value, lastName.value);
+}
+
+async function handleSubmit(): Promise<void> {
+  const boostsPadded = [
+    ...boostsSelected.value,
+    ...Array(BOOST_SIZE - boostsSelected.value.length).fill(""),
+  ];
+
+  riseSubmitted.value = await appendRow("Montées", [
+    mergeName(firstName.value, lastName.value),
+    date.value,
+    time.value,
+    parcoursSelected.value,
+    ...boostsPadded,
+    comments.value,
+  ]);
+
+  if (riseSubmitted.value) {
+    setTimeout(() => {
+      riseSubmitted.value = null;
+    }, 3000);
+  }
 }
 </script>
 
@@ -107,6 +142,12 @@ async function handleValidate(): Promise<void> {
 .error {
   font-size: 0.8rem;
   color: var(--c-error);
+  margin-top: 4px;
+}
+
+.success {
+  font-size: 0.8rem;
+  color: var(--c-accent);
   margin-top: 4px;
 }
 

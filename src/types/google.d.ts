@@ -13,14 +13,25 @@ interface GapiClient {
   init(options: { discoveryDocs: string[] }): Promise<void>;
   getToken(): { access_token: string } | null;
   setToken(token: string): void;
-  // https://developers.google.com/workspace/sheets/api/guides/values#read
+  // https://developers.google.com/workspace/sheets/api/quickstart/js
   sheets: {
     spreadsheets: {
       values: {
+        // https://developers.google.com/workspace/sheets/api/guides/values#read
         get(params: {
           spreadsheetId: string;
           range: string;
         }): Promise<{ result: { values: string[][] } }>;
+
+        // https://developers.google.com/workspace/sheets/api/guides/values#append_values
+        append(params: {
+          spreadsheetId: string;
+          range: string;
+          valueInputOption: string;
+          resource: {
+            values: string[][];
+          };
+        });
       };
     };
   };

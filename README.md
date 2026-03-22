@@ -47,22 +47,25 @@ To limit its misuse, configure strict **Authorized JavaScript origins** in the G
 
 The Google Sheet must have the following tables:
 
-- A "Parcours" table with "Nom" column.
-- A "Boosts" table with "Nom" column.
-- A "Participants" table "Nom" in the first column.
+- A "Parcours" table with a "Nom" column.
+- A "Boosts" table with a "Nom" column.
+- A "Participants" table a "Nom" in the first column.
+- A "Montées" table starting at row 3, with the following columns (names may differ but order must match):
+
+| Prénom NOM | Date | Temps réalisé | Parcours | Boost 1 | Boost 2 | Boost 3 | Commentaire |
 
 ## App Script "Challenge du réservoir"
 
-To validate first and last name of the challenger, the App Script validate the form in server side. The script can be like:
+To validate the challenger's first and last name, an Apps Script handles server-side form validation. The script can be written as follows:
 
 ```js
 function validateName(name) {
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  const sheetParticipants = spreadsheet.getSheetByName("Participants"); // Participants table without header
+  const sheetParticipants = spreadsheet.getSheetByName("Participants");
   const participantsData = sheetParticipants
     .getDataRange()
     .getValues()
-    .slice(1);
+    .slice(1); // skip header row
   const allNames = participantsData.map((row) => row[0]); // Nom (first col)
   const valid = allNames.some((row) => row.toString() === name);
   return valid;

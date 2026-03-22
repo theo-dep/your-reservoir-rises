@@ -30,6 +30,10 @@ function capitalizeFirstLetter(name: string): string {
   return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
 }
 
+function mergeName(firstName: string, lastName: string): string {
+  return [firstName, lastName].join(" ");
+}
+
 async function validateName(
   firstName: string,
   lastName: string,
@@ -41,7 +45,7 @@ async function validateName(
   nameValid.value = null;
   try {
     const result = await runScript("validateName", [
-      [firstName, lastName].join(" "),
+      mergeName(firstName, lastName),
     ]);
     nameValid.value = result as boolean;
   } finally {
@@ -50,5 +54,5 @@ async function validateName(
 }
 
 export function useNameValidation() {
-  return { nameValid, validating, validateName };
+  return { nameValid, validating, mergeName, validateName };
 }

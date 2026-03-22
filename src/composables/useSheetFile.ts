@@ -17,8 +17,40 @@ async function fetchTable(range: string): Promise<Record<string, string[]>> {
   );
 }
 
+async function appendRow(range: string, values: string[]): Promise<boolean> {
+  try {
+    // read the first column to find the empty cell after A3
+    const firstRow = 3;
+    const readRange = await window.gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: GOOGLE_CONFIG.sheetId,
+      range: `${range}!A:A`,
+    });
+
+    const rows: string[][] = readRange.result.values ?? [];
+    // find the empty cell (indice 0 is ligne 1)
+    let firstEmpty = Math.max(rows.length + 1, firstRow);
+    for (let i = firstRow - 1; i < rows.length; i++) {
+      if (!rows[i]?.[0]) {
+        firstEmpty = i + 1;
+        break;
+      }
+    }
+
+    await window.gapi.client.sheets.spreadsheets.values.append({
+      spreadsheetId: GOOGLE_CONFIG.sheetId,
+      range: `${range}!A${firstEmpty}`,
+      valueInputOption: "USER_ENTERED",
+      resource: { values: [values] },
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function useSheetFile() {
   return {
     fetchTable,
+    appendRow,
   };
 }
