@@ -25,6 +25,7 @@
     <input
       id="time"
       v-model="time"
+      placeholder="hh:mm:ss"
       class="input"
       type="time"
       step="1"

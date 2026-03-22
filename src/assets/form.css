@@ -8,11 +8,36 @@
   color: var(--c-disable);
 }
 
+input[type="time"] {
+  color: transparent;
+
+  &:invalid {
+    &:before {
+      color: var(--c-disable);
+      content: attr(placeholder);
+      padding-left: 2px;
+      pointer-events: none;
+      position: absolute;
+    }
+  }
+
+  &:valid,
+  &:focus,
+  &:active {
+    color: var(--c-text);
+
+    &:before {
+      display: none;
+    }
+  }
+}
+
 .input,
 .select-wrap select {
+  width: 100%;
   min-width: 100%;
   max-width: min-content;
-  height: stretch;
+  height: 100%;
   min-height: 38px;
   padding: 0 12px;
   font-family: var(--font-sans);

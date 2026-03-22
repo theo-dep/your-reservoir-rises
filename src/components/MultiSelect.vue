@@ -96,10 +96,12 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside));
 
 .dropdown {
   position: absolute;
+  top: calc(100% + 4px);
   left: 0;
   right: 0;
   background: var(--c-bg);
   border: 1px solid rgb(from var(--c-line) r g b / 0.5);
+  border-radius: 4px;
   list-style: none;
   padding: 4px 0;
   margin: 0;
