@@ -1,8 +1,7 @@
 import { ref, readonly } from "vue";
 import { GOOGLE_CONFIG } from "@/config/google";
+import { STORAGE_CONFIG } from "@/config/storage";
 import type { TokenClient, TokenResponse } from "@/types/google";
-
-const STORAGE_KEY = "gapi_token";
 
 const gapiInited = ref(false);
 const gisInited = ref(false);
@@ -22,11 +21,11 @@ function saveToken(access_token: string, expires_in: number): void {
     access_token: access_token,
     expires_at: Date.now() + (expires_in - 5 * 60) * 1000, // 55 min (Google API token expires after 1 hour)
   };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+  localStorage.setItem(STORAGE_CONFIG.gapiToken, JSON.stringify(stored));
 }
 
 function loadToken(): StoredToken | null {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  const raw = localStorage.getItem(STORAGE_CONFIG.gapiToken);
   if (!raw) return null;
   try {
     const stored: StoredToken = JSON.parse(raw);
@@ -42,7 +41,7 @@ function loadToken(): StoredToken | null {
 }
 
 function clearToken(): void {
-  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(STORAGE_CONFIG.gapiToken);
   isTokenRestored.value = false;
 }
 

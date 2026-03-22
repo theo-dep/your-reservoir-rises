@@ -1,6 +1,6 @@
 <template>
   <div v-if="loading" class="state">Chargement…</div>
-  <div v-else-if="error" class="state state-error">⚠ {{ error }}</div>
+  <div v-else-if="error" class="state state-error">⚠️ {{ error }}</div>
   <form v-else class="container">
     <input
       id="firstName"
@@ -60,7 +60,7 @@
     />
   </form>
 
-  <p v-if="nameValid === false" class="error">⚠ Nom ou prénom introuvable.</p>
+  <p v-if="nameValid === false" class="error">⚠️ Nom ou prénom introuvable.</p>
 </template>
 
 <script setup lang="ts">
@@ -68,6 +68,7 @@ import { ref } from "vue";
 import SingleSelect from "@/components/SingleSelect.vue";
 import MultiSelect from "@/components/MultiSelect.vue";
 import { useNameValidation } from "@/composables/useNameValidation";
+import { useLocalName } from "@/composables/useLocalName";
 
 defineProps<{
   parcours: readonly string[];
@@ -76,8 +77,8 @@ defineProps<{
   error: string | null;
 }>();
 
-const firstName = ref<string>("");
-const lastName = ref<string>("");
+const { firstName, lastName } = useLocalName();
+
 const date = ref<string>(new Date().toISOString().split("T")[0]);
 const time = ref<string>("");
 const parcoursSelected = ref<string>("");
