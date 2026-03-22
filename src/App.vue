@@ -95,6 +95,7 @@ function handleSignOut(): void {
   --c-line: #ebd5ab;
   --c-accent: #628141;
   --c-disable: #757575;
+  --c-error: #c0392b;
   --font-serif: "Lora", Georgia, serif;
   --font-sans: "DM Sans", sans-serif;
 }

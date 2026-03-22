@@ -81,7 +81,7 @@ async function initGis(): Promise<void> {
   await loadScript("https://accounts.google.com/gsi/client");
   tokenClient = window.google.accounts.oauth2.initTokenClient({
     client_id: GOOGLE_CONFIG.clientId,
-    scope: GOOGLE_CONFIG.scopes,
+    scope: GOOGLE_CONFIG.scopes.join(" "),
   });
   gisInited.value = true;
   maybeSetReady();

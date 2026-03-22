@@ -13,6 +13,7 @@ interface GapiClient {
   init(options: { discoveryDocs: string[] }): Promise<void>;
   getToken(): { access_token: string } | null;
   setToken(token: string): void;
+  // https://developers.google.com/workspace/sheets/api/guides/values#read
   sheets: {
     spreadsheets: {
       values: {

@@ -1,65 +1,73 @@
 <template>
-  <div class="table">
-    <div v-if="loading" class="state">Chargement…</div>
-    <div v-else-if="error" class="state state--error">⚠ {{ error }}</div>
-    <form v-else class="container">
-      <input
-        id="firstName"
-        class="input"
-        placeholder="Prénom"
-        v-model.lazy.trim="firstName"
-        required
-      />
+  <div v-if="loading" class="state">Chargement…</div>
+  <div v-else-if="error" class="state state-error">⚠ {{ error }}</div>
+  <form v-else class="container">
+    <input
+      id="firstName"
+      class="input"
+      placeholder="Prénom"
+      v-model.lazy.trim="firstName"
+      required
+      @blur="handleValidate"
+    />
 
-      <input
-        id="lastName"
-        class="input"
-        placeholder="Nom"
-        v-model.lazy.trim="lastName"
-        required
-      />
+    <input
+      id="lastName"
+      class="input"
+      placeholder="Nom"
+      v-model.lazy.trim="lastName"
+      required
+      @blur="handleValidate"
+    />
 
-      <input class="input" type="date" id="date" v-model="date" required />
+    <input class="input" type="date" id="date" v-model="date" required />
 
-      <input
-        class="input"
-        type="time"
-        id="time"
-        step="1"
-        v-model="time"
-        required
-      />
+    <input
+      class="input"
+      type="time"
+      id="time"
+      step="1"
+      v-model="time"
+      required
+    />
 
-      <SingleSelect
-        name="Parcours"
-        :values="parcours"
-        v-model="parcoursSelected"
-        :required="true"
-      />
+    <SingleSelect
+      name="Parcours"
+      :values="parcours"
+      v-model="parcoursSelected"
+      :required="true"
+    />
 
-      <MultiSelect
-        name="Boosts"
-        :values="boosts"
-        v-model="boostsSelected"
-        :max="3"
-      />
+    <MultiSelect
+      name="Boosts"
+      :values="boosts"
+      v-model="boostsSelected"
+      :max="3"
+    />
 
-      <textarea
-        class="input textarea"
-        v-model="comments"
-        id="comments"
-        placeholder="Comments"
-      ></textarea>
+    <textarea
+      class="input textarea"
+      v-model="comments"
+      id="comments"
+      placeholder="Comments"
+    ></textarea>
 
-      <input class="input submit" type="submit" value="Envoyer" />
-    </form>
-  </div>
+    <input
+      class="input submit"
+      type="submit"
+      :value="validating ? 'Vérification…' : 'Envoyer'"
+      :disabled="validating || nameValid === false"
+    />
+  </form>
+
+  <p v-if="nameValid === false" class="error">⚠ Nom ou prénom introuvable.</p>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import SingleSelect from "@/components/SingleSelect.vue";
 import MultiSelect from "@/components/MultiSelect.vue";
+import { useNameValidation } from "@/composables/useNameValidation";
 
 defineProps<{
   parcours: readonly string[];
@@ -75,6 +83,12 @@ const time = ref<string>("");
 const parcoursSelected = ref<string>("");
 const boostsSelected = ref<string[]>([]);
 const comments = ref<string>("");
+
+const { nameValid, validating, validateName } = useNameValidation();
+
+async function handleValidate(): Promise<void> {
+  await validateName(firstName.value, lastName.value);
+}
 </script>
 
 <style scoped>
@@ -85,8 +99,14 @@ const comments = ref<string>("");
   font-size: 0.9rem;
 }
 
-.state--error {
-  color: #c0392b;
+.state-error {
+  color: var(--c-error);
+}
+
+.error {
+  font-size: 0.8rem;
+  color: var(--c-error);
+  margin-top: 4px;
 }
 
 .container {

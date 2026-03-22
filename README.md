@@ -5,7 +5,7 @@ Application to register a rise for the "Challenge du réservoir".
 ## Prerequisites
 
 - Node.js ≥ 18
-- A Google Cloud project with activated API Sheet ([console](https://console.developers.google.com/))
+- A Google Cloud project with activated Sheet and App Script API ([console](https://console.developers.google.com/))
 - An OAuth 2.0 Client ID of type **Application Web**
 
 ## Installation
@@ -21,9 +21,10 @@ Enter your `CLIENT_ID` and a Google Sheet ID of "Vos montées des réservoirs" i
 ```env
 VITE_GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
 VITE_GOOGLE_SHEET_ID=your_google_sheet_id
+VITE_GOOGLE_VALIDATE_SCRIPT_ID=your_google_app_script_id
 ```
 
-Follow the [Google Javascript quickstart guide](https://developers.google.com/workspace/sheets/api/quickstart/js).
+Follow the [Google Javascript quickstart guide](https://developers.google.com/workspace/sheets/api/quickstart/js) and the [App Script run API documentation](https://developers.google.com/apps-script/api/reference/rest/v1/scripts/run). The App Script must be deployed on the same Google Cloud Platform Project than the Client ID.
 
 ## Commandes
 
@@ -41,3 +42,29 @@ npm run lint         # Run ESLint
 The Google `CLIENT_ID` is a **public** identifier by design — the browser needs it to initiate the OAuth flow. Storing it in a `VITE_*` variable does not hide it from the final bundle, but keeps it out of versioned source code.
 
 To limit its misuse, configure strict **Authorized JavaScript origins** in the Google Cloud Console.
+
+## Google Sheet "Challenge du réservoir"
+
+The Google Sheet must have the following tables:
+
+- A "Parcours" table with "Nom" column.
+- A "Boosts" table with "Nom" column.
+- A "Participants" table "Nom" in the first column.
+
+## App Script "Challenge du réservoir"
+
+To validate first and last name of the challenger, the App Script validate the form in server side. The script can be like:
+
+```js
+function validateName(name) {
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  const sheetParticipants = spreadsheet.getSheetByName("Participants"); // Participants table without header
+  const participantsData = sheetParticipants
+    .getDataRange()
+    .getValues()
+    .slice(1);
+  const allNames = participantsData.map((row) => row[0]); // Nom (first col)
+  const valid = allNames.some((row) => row.toString() === name);
+  return valid;
+}
+```

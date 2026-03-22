@@ -35,6 +35,7 @@ jobs:
         env:
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
           VITE_GOOGLE_SHEET_ID: ${{ secrets.VITE_GOOGLE_SHEET_ID }}
+          VITE_GOOGLE_VALIDATE_SCRIPT_ID: ${{ secrets.VITE_GOOGLE_VALIDATE_SCRIPT_ID }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
