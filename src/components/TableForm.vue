@@ -56,9 +56,9 @@
     <button
       class="input submit"
       type="submit"
-      :disabled="validating || nameValid === false"
+      :disabled="validating || submitting || nameValid === false"
     >
-      {{ validating ? "Vérification…" : "Envoyer" }}
+      {{ submitting ? "Envoi…" : validating ? "Vérification…" : "Envoyer" }}
     </button>
   </form>
 
@@ -76,7 +76,7 @@ import SingleSelect from "@/components/SingleSelect.vue";
 import MultiSelect from "@/components/MultiSelect.vue";
 import { useNameValidation } from "@/composables/useNameValidation";
 import { useLocalName } from "@/composables/useLocalName";
-import { useSheetFile } from "@/composables/useSheetFile";
+import { addRise } from "@/utils/Rise";
 
 defineProps<{
   parcours: readonly string[];
@@ -96,29 +96,30 @@ const boostsSelected = ref<string[]>([]);
 const comments = ref<string>("");
 
 const riseSubmitted = ref<boolean | null>(null);
+const submitting = ref<boolean>(false);
 
-const { nameValid, validating, mergeName, validateName } = useNameValidation();
-
-const { appendRow } = useSheetFile();
+const { nameValid, validating, validateName } = useNameValidation();
 
 async function handleValidate(): Promise<void> {
   await validateName(firstName.value, lastName.value);
 }
 
 async function handleSubmit(): Promise<void> {
-  const boostsPadded = [
-    ...boostsSelected.value,
-    ...Array(BOOST_SIZE - boostsSelected.value.length).fill(""),
-  ];
+  submitting.value = true;
 
-  riseSubmitted.value = await appendRow("Montées", [
-    mergeName(firstName.value, lastName.value),
+  riseSubmitted.value = await addRise(
+    firstName.value,
+    lastName.value,
     date.value,
     time.value,
     parcoursSelected.value,
-    ...boostsPadded,
+    boostsSelected.value[0] ?? "",
+    boostsSelected.value[1] ?? "",
+    boostsSelected.value[2] ?? "",
     comments.value,
-  ]);
+  );
+
+  submitting.value = false;
 
   if (riseSubmitted.value) {
     setTimeout(() => {

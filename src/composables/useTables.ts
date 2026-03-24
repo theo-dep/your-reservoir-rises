@@ -1,45 +1,45 @@
 import { ref, readonly } from "vue";
-import { useSheetFile } from "@/composables/useSheetFile";
-
-const { fetchTable } = useSheetFile();
+import { runScript } from "@/utils/GoogleScriptAPI";
 
 const parcours = ref<string[]>([]);
 const boosts = ref<string[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
 
-async function fetchParcours(): Promise<void> {
+async function fetchTables(): Promise<void> {
   loading.value = true;
   error.value = null;
 
   try {
     const [parcoursRecord, boostsRecord] = await Promise.all([
-      fetchTable("Parcours"),
-      fetchTable("Boosts"),
+      runScript("courseNames"),
+      runScript("boostNames"),
     ]);
 
-    parcours.value = parcoursRecord["Nom"];
-    boosts.value = boostsRecord["Nom"];
+    parcours.value = parcoursRecord as string[];
+    boosts.value = boostsRecord as string[];
   } catch (err: unknown) {
     error.value = err instanceof Error ? err.message : "Unknown error";
     parcours.value = [];
+    boosts.value = [];
   } finally {
     loading.value = false;
   }
 }
 
-function clearParcours(): void {
+function clearTables(): void {
   parcours.value = [];
+  boosts.value = [];
   error.value = null;
 }
 
-export function useParcoursTable() {
+export function useTables() {
   return {
     parcours: readonly(parcours),
     boosts: readonly(boosts),
     loading: readonly(loading),
     error: readonly(error),
-    fetchParcours,
-    clearParcours,
+    fetchTables,
+    clearTables,
   };
 }
