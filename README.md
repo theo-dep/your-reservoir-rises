@@ -21,6 +21,7 @@ Enter your `CLIENT_ID` and an Apps Script deployment ID of [appsscript/api.gs](a
 ```env
 VITE_GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
 VITE_GOOGLE_APPS_SCRIPT_ID=your_google_app_script_id
+VITE_GOOGLE_SITE_VERIFICATION=your_google_site_verification_code
 ```
 
 To limit the scope of the Google API used, all requests pass through an Apps Script API instead of directly using the Google Sheets JavaScript client. This ensures tighter control over API permissions. Follow the [Apps Script Execution API documentation](https://developers.google.com/apps-script/api/reference/rest/v1/scripts/run) for deployment details. The Apps Script deployment must be in the same Google Cloud Platform project as your Client ID.
@@ -63,3 +64,15 @@ All Apps Script functions are defined in [appsscript/api.gs](appsscript/api.gs).
 - **`boostNames()`** — Retrieves available boost names from the "Boosts" sheet
 
 Deploy this script as an executable using the [Apps Script Deployment documentation](https://developers.google.com/apps-script/concepts/deployments) and set the deployment ID in `VITE_GOOGLE_VALIDATE_SCRIPT_ID`.
+
+## Google Search Console Verification
+
+To verify ownership of your GitHub Pages site for Google OAuth:
+
+1. Go to [Google Search Console](https://search.google.com/search-console)
+2. Add property: `https://theo-dep.github.io/your-reservoir-rises`
+3. Choose **"HTML tag"** verification method
+4. Copy **only the content value** from the meta tag (e.g., `abc123xyz...`)
+5. Add it to your `.env` file `VITE_GOOGLE_SITE_VERIFICATION` variable
+6. Build and deploy
+7. Return to Google Search Console and click **"Verify"**
