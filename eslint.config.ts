@@ -24,7 +24,14 @@ module.exports = defineConfig([
         parser: typescriptEslint.parser,
       },
     },
-    rules: {},
+    rules: {
+      "vue/multi-word-component-names": [
+        "error",
+        {
+          ignores: ["Home", "Privacy"],
+        },
+      ],
+    },
   },
   eslintConfigPrettier,
 ]);

@@ -1,0 +1,152 @@
+<template>
+  <div>
+    <header>
+      <span class="logo">Vos montées des réservoirs</span>
+      <div class="controls">
+        <span v-if="!isReady" class="muted">Initialisation…</span>
+        <template v-else-if="!isSignedIn">
+          <button class="btn btn-primary" @click="handleSignIn">
+            Connection
+          </button>
+        </template>
+        <div v-else class="btnContainer">
+          <button class="btn" @click="handleRefresh">Actualiser</button>
+          <button class="btn" @click="handleSignOut">Déconnexion</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div v-if="!isSignedIn && isReady" class="welcome">
+        <h2 class="welcome-title">
+          Bienvenue sur l'application "Challenge du réservoir"
+        </h2>
+        <p class="welcome-description">
+          Cette application vous permet d'enregistrer vos montées des réservoirs
+          dans la Google Sheet collaborative.
+        </p>
+        <p class="welcome-subtitle">
+          Connectez-vous pour enregistrer une montée.
+        </p>
+      </div>
+      <template v-else-if="isSignedIn">
+        <TableForm
+          :parcours="parcours"
+          :boosts="boosts"
+          :loading="loading"
+          :error="error"
+        />
+      </template>
+    </main>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { onMounted } from "vue";
+import { useGoogleAuth } from "@/composables/useGoogleAuth";
+import { useTables } from "@/composables/useTables";
+import TableForm from "@/components/TableForm.vue";
+
+const { isReady, isSignedIn, isTokenRestored, initialize, signIn, signOut } =
+  useGoogleAuth();
+const { parcours, boosts, loading, error, fetchTables, clearTables } =
+  useTables();
+
+onMounted(async () => {
+  await initialize();
+  // need popup permission
+  if (isTokenRestored.value && !isSignedIn.value) {
+    await handleSignIn();
+  }
+});
+
+async function handleSignIn(): Promise<void> {
+  try {
+    await signIn();
+  } catch {
+    // in case of access denied, signOut and signIn
+    signOut();
+    await signIn();
+  }
+  await handleRefresh();
+}
+
+async function handleRefresh(): Promise<void> {
+  await fetchTables();
+}
+
+function handleSignOut(): void {
+  signOut();
+  clearTables();
+}
+</script>
+
+<style scoped>
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--c-line);
+  margin-bottom: 2.5rem;
+}
+
+.logo {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  padding-right: 8px;
+}
+
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.muted {
+  color: var(--c-muted);
+  font-size: 0.85rem;
+}
+
+.btnContainer {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr;
+}
+
+@media screen and (min-width: 560px) {
+  .btnContainer {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.welcome {
+  padding: 4rem 0;
+  text-align: center;
+}
+.welcome-title {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  color: var(--c-text);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+.welcome-description {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--c-muted);
+  margin-bottom: 1.5rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.welcome-subtitle {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--c-accent);
+  font-size: 1.05rem;
+  margin-top: 1.5rem;
+}
+</style>

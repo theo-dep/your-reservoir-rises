@@ -1,34 +1,8 @@
 <template>
   <div class="app">
-    <header>
-      <span class="logo">Vos montées des réservoirs</span>
-      <div class="controls">
-        <span v-if="!isReady" class="muted">Initialisation…</span>
-        <template v-else-if="!isSignedIn">
-          <button class="btn btn-primary" @click="handleSignIn">
-            Connection
-          </button>
-        </template>
-        <div v-else class="btnContainer">
-          <button class="btn" @click="handleRefresh">Actualiser</button>
-          <button class="btn" @click="handleSignOut">Déconnexion</button>
-        </div>
-      </div>
-    </header>
-
-    <main>
-      <div v-if="!isSignedIn && isReady" class="welcome">
-        <p class="welcome-title">Connectez-vous pour enregistrer une montée.</p>
-      </div>
-      <template v-else-if="isSignedIn">
-        <TableForm
-          :parcours="parcours"
-          :boosts="boosts"
-          :loading="loading"
-          :error="error"
-        />
-      </template>
-    </main>
+    <div class="content">
+      <router-view />
+    </div>
 
     <footer>
       This site is built with ❤️ using
@@ -41,61 +15,43 @@
         rel="noopener"
         >Open Source Project</a
       >
+      |
+      <router-link class="link" to="/privacy">Privacy Policy</router-link>
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
-import { useGoogleAuth } from "@/composables/useGoogleAuth";
-import { useTables } from "@/composables/useTables";
-import TableForm from "@/components/TableForm.vue";
-
-const { isReady, isSignedIn, isTokenRestored, initialize, signIn, signOut } =
-  useGoogleAuth();
-const { parcours, boosts, loading, error, fetchTables, clearTables } =
-  useTables();
-
-onMounted(async () => {
-  await initialize();
-  // need popup permission
-  if (isTokenRestored.value && !isSignedIn.value) {
-    await handleSignIn();
-  }
-});
-
-async function handleSignIn(): Promise<void> {
-  try {
-    await signIn();
-  } catch {
-    // in case of access denied, signOut and signIn
-    signOut();
-    await signIn();
-  }
-  await handleRefresh();
-}
-
-async function handleRefresh(): Promise<void> {
-  await fetchTables();
-}
-
-function handleSignOut(): void {
-  signOut();
-  clearTables();
-}
+// App shell - routing handled by vue-router
 </script>
 
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500&display=swap");
 
 :root {
+  /* Colors - Base */
   --c-bg: #1b211a;
   --c-text: #ebd5ab;
+  --c-white: #ffffff;
   --c-muted: #8bae66;
   --c-line: #ebd5ab;
   --c-accent: #628141;
   --c-disable: #757575;
+
+  /* Colors - Semantic */
   --c-error: #c0392b;
+  --c-success: #27ae60;
+  --c-warning: #ffc107;
+  --c-info: #17a2b8;
+
+  /* Colors - Alpha variants */
+  --c-muted-light: rgba(139, 174, 102, 0.05);
+  --c-muted-bg: rgba(139, 174, 102, 0.15);
+  --c-warning-bg: rgba(255, 193, 7, 0.1);
+  --c-info-bg: rgba(23, 162, 184, 0.1);
+  --c-focus-shadow: rgba(45, 90, 61, 0.08);
+
+  /* Fonts */
   --font-serif: "Lora", Georgia, serif;
   --font-sans: "DM Sans", sans-serif;
 }
@@ -130,53 +86,7 @@ body {
   color: var(--c-accent);
 }
 
-/* Header */
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--c-line);
-  margin-bottom: 2.5rem;
-}
-
-.logo {
-  font-family: var(--font-serif);
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  padding-right: 8px;
-}
-
-.controls {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.muted {
-  color: var(--c-muted);
-  font-size: 0.85rem;
-}
-
-/* Main */
-main {
-  flex: 1;
-}
-
-/* Buttons */
-.btnContainer {
-  display: grid;
-  gap: 8px;
-  grid-template-columns: 1fr;
-}
-
-@media screen and (min-width: 560px) {
-  .btnContainer {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
+/* Buttons - Global styles used across components */
 .btn {
   font-family: var(--font-sans);
   font-size: 0.85rem;
@@ -198,31 +108,15 @@ main {
 .btn-primary {
   background: var(--c-accent);
   border-color: var(--c-accent);
-  color: #fff;
+  color: var(--c-white);
 }
 .btn-primary:hover {
   opacity: 0.88;
 }
 
-/* Welcome */
-.welcome {
-  padding: 4rem 0;
-  text-align: center;
-}
-.welcome-title {
-  font-family: var(--font-serif);
-  font-style: italic;
-  color: var(--c-muted);
-  font-size: 1.05rem;
-}
-
-/* Section label */
-.section-label {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--c-muted);
-  margin-bottom: 0.5rem;
+/* Content wrapper */
+.content {
+  flex: 1;
 }
 
 /* Footer */

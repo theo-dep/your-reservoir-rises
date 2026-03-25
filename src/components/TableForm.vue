@@ -162,7 +162,7 @@ async function handleSubmit(): Promise<void> {
 .submit {
   cursor: pointer;
   background-color: var(--c-accent);
-  color: #fff;
+  color: var(--c-white);
 }
 
 .submit:hover {

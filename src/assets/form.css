@@ -61,7 +61,7 @@ input[type="time"] {
 .input:focus,
 .select-wrap select:focus {
   border-color: var(--c-text);
-  box-shadow: 0 0 0 3px rgba(45, 90, 61, 0.08);
+  box-shadow: 0 0 0 3px var(--c-focus-shadow);
 }
 
 .select-wrap select,
