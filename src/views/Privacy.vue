@@ -1,11 +1,7 @@
 <template>
-  <div class="privacy-container">
-    <div class="back-link-wrapper">
-      <router-link to="/" class="back-link"
-        >← Retour à l'application</router-link
-      >
-    </div>
+  <BackLink />
 
+  <div class="privacy-container">
     <h1>Privacy Policy</h1>
     <p class="meta"><strong>Last Updated:</strong> March 2026</p>
 
@@ -370,7 +366,7 @@ localStorage.clear();</code></pre>
 </template>
 
 <script setup lang="ts">
-// No script needed for now
+import BackLink from "@/components/BackLink.vue";
 </script>
 
 <style scoped>
@@ -379,20 +375,6 @@ localStorage.clear();</code></pre>
   margin: 0 auto;
   padding: 2rem 1.5rem;
   line-height: 1.7;
-}
-
-.back-link-wrapper {
-  margin-bottom: 2rem;
-}
-
-.back-link {
-  color: var(--c-accent);
-  text-decoration: none;
-  font-size: 0.95rem;
-}
-
-.back-link:hover {
-  text-decoration: underline;
 }
 
 h1 {

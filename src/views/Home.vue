@@ -22,8 +22,9 @@
           Bienvenue sur l'application "Challenge du réservoir"
         </h2>
         <p class="welcome-description">
-          Cette application vous permet d'enregistrer vos montées des réservoirs
-          dans la Google Sheet collaborative.
+          Application de saisie des montées pour les participants du challenge.
+          Les données sont enregistrées dans la Google Sheet collaborative de
+          {{ new Date().getFullYear() }} via votre compte Google.
         </p>
         <p class="welcome-subtitle">
           Connectez-vous pour enregistrer une montée.
