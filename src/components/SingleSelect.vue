@@ -1,42 +1,47 @@
 <template>
-  <div class="select-wrap">
-    <select
-      :id="name.toLowerCase()"
-      v-model="selected"
-      :required="required ? true : false"
-      :class="{ placeholder: selected === '' }"
+  <div style="position: relative">
+    <SelectDropDown
+      :values="values"
+      :is-selected="(v) => model === v"
+      :close-on-select="true"
+      @select="select"
     >
-      <option disabled value="" class="placeholder">{{ name }}</option>
-      <option v-for="value in values" :key="value" :value="value">
-        {{ value }}
-      </option>
-    </select>
-    <SvgArrow />
+      <template #trigger>
+        <span :class="model ? '' : 'placeholder'">{{ model || name }}</span>
+      </template>
+    </SelectDropDown>
+
+    <!-- hidden input to use the native form validation -->
+    <input
+      type="text"
+      :value="model ?? ''"
+      :required="required"
+      :name="name"
+      style="
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+      "
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import SvgArrow from "@/components/SvgArrow.vue";
+import SelectDropDown from "@/components/SelectDropDown.vue";
 
 defineProps<{
   name: string;
   values: readonly string[];
-  required: boolean;
+  required?: boolean;
 }>();
 
-const selected = defineModel<string>({ default: "" });
+const model = defineModel<string | null>({ default: null });
+
+function select(option: string) {
+  model.value = model.value === option ? null : option;
+}
 </script>
-
-<style scoped>
-select:hover + .select-arrow {
-  color: var(--c-muted);
-}
-
-select.placeholder {
-  color: var(--c-disable);
-}
-
-select::picker(select) {
-  color: var(--c-text);
-}
-</style>

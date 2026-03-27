@@ -1,33 +1,23 @@
 <template>
-  <div ref="root" class="select-wrap">
-    <div class="input" @click="open = !open">
-      <span v-if="selected.length === 0" class="placeholder">{{ name }}</span>
-      <span v-for="item in selected" :key="item" class="tag">
+  <SelectDropDown
+    :values="values"
+    :is-selected="(v) => model.includes(v)"
+    :is-disabled="(v) => !model.includes(v) && model.length >= max"
+    :close-on-select="false"
+    @select="toggle"
+  >
+    <template #trigger>
+      <span v-if="model.length === 0" class="placeholder">{{ name }}</span>
+      <span v-for="item in model" :key="item" class="tag">
         {{ item }}
         <button @click.stop="remove(item)">×</button>
       </span>
-      <SvgArrow />
-    </div>
-
-    <ul v-if="open" class="dropdown">
-      <li
-        v-for="value in values"
-        :key="value"
-        :class="{
-          selected: selected.includes(value),
-          disabled: !selected.includes(value) && selected.length >= max,
-        }"
-        @click="toggle(value)"
-      >
-        {{ value }}
-      </li>
-    </ul>
-  </div>
+    </template>
+  </SelectDropDown>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
-import SvgArrow from "@/components/SvgArrow.vue";
+import SelectDropDown from "@/components/SelectDropDown.vue";
 
 const props = defineProps<{
   name: string;
@@ -36,39 +26,21 @@ const props = defineProps<{
 }>();
 
 const model = defineModel<string[]>({ default: () => [] });
-const selected = model;
-const open = ref(false);
-const root = ref<HTMLElement | null>(null);
 
 function toggle(option: string) {
-  if (selected.value.includes(option)) {
+  if (model.value.includes(option)) {
     remove(option);
-  } else if (selected.value.length < props.max) {
-    selected.value = [...selected.value, option];
+  } else if (model.value.length < props.max) {
+    model.value = [...model.value, option];
   }
 }
 
 function remove(option: string) {
-  selected.value = selected.value.filter((o) => o !== option);
+  model.value = model.value.filter((o) => o !== option);
 }
-
-function onClickOutside(e: MouseEvent) {
-  if (root.value && !root.value.contains(e.target as Node)) open.value = false;
-}
-
-onMounted(() => document.addEventListener("click", onClickOutside));
-onUnmounted(() => document.removeEventListener("click", onClickOutside));
 </script>
 
 <style scoped>
-.input {
-  cursor: pointer;
-}
-
-.input:hover .select-arrow {
-  color: var(--c-muted);
-}
-
 .tag {
   display: inline-flex;
   align-items: center;
@@ -92,38 +64,5 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside));
 }
 .tag button:hover {
   opacity: 1;
-}
-
-.dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  background: var(--c-bg);
-  border: 1px solid rgb(from var(--c-line) r g b / 0.5);
-  border-radius: 4px;
-  list-style: none;
-  padding: 4px 0;
-  margin: 0;
-  z-index: 100;
-  overflow-y: auto;
-}
-
-.dropdown li {
-  font-size: small;
-  padding: 2px 12px;
-  cursor: pointer;
-  transition: background 0.1s;
-}
-.dropdown li:hover:not(.disabled) {
-  background: var(--c-muted);
-}
-.dropdown li.selected {
-  color: var(--c-accent);
-  font-weight: 500;
-}
-.dropdown li.disabled {
-  color: var(--c-disable);
-  cursor: not-allowed;
 }
 </style>
