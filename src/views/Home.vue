@@ -6,7 +6,7 @@
         <span v-if="!isReady" class="muted">Initialisation…</span>
         <template v-else-if="!isSignedIn">
           <button class="btn btn-primary" @click="handleSignIn">
-            Connection
+            Connexion
           </button>
         </template>
         <div v-else class="btnContainer">
