@@ -48,7 +48,7 @@ To limit its misuse, configure strict **Authorized JavaScript origins** in the G
 The Google Sheet must have the following tables:
 
 - A "Parcours" table with a "Nom" column.
-- A "Boosts" table with a "Nom" column.
+- A "Boosts" table with a "Nom", <any>, "Début" and "Fin" column.
 - A "Participants" table with a "Nom" in the first column.
 - A "Montées" table starting at row 3, with the following columns (names may differ but order must match):
 

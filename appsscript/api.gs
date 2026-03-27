@@ -9,9 +9,21 @@ function courseNames() {
 
 function boostNames() {
   const sheet = spreadsheet.getSheetByName("Boosts");
-  const data = sheet.getDataRange().getValues().slice(1); // skip header row
-  const firstCol = data.map((row) => row[0]); // Nom (first col)
-  return firstCol;
+  const data = sheet.getDataRange().getValues().slice(1);
+  const now = new Date();
+
+  return data
+    .filter((row) => {
+      const start = row[2]; // Début
+      const end = row[3]; // Fin
+      if (!start || !end) return true; // no dates always active
+
+      const endOfDay = new Date(end);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      return now >= new Date(start) && now <= endOfDay;
+    })
+    .map((row) => row[0]); // Nom
 }
 
 function validateName(name) {
