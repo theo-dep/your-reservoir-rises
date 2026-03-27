@@ -20,16 +20,13 @@
       @blur="handleValidate"
     />
 
-    <input id="date" v-model="date" class="input" type="date" required />
+    <DateInput v-model="date" :required-days="true" :required-months="true" />
 
-    <input
-      id="time"
+    <DurationInput
       v-model="time"
-      placeholder="hh:mm:ss"
-      class="input"
-      type="time"
-      step="1"
-      required
+      :required-hours="false"
+      :required-minutes="true"
+      :required-seconds="true"
     />
 
     <SingleSelect
@@ -72,6 +69,8 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import DateInput from "@/components/DateInput.vue";
+import DurationInput from "@/components/DurationInput.vue";
 import SingleSelect from "@/components/SingleSelect.vue";
 import MultiSelect from "@/components/MultiSelect.vue";
 import { useNameValidation } from "@/composables/useNameValidation";
@@ -89,7 +88,7 @@ const BOOST_SIZE = 3;
 
 const { firstName, lastName } = useLocalName();
 
-const date = ref<string>(new Date().toISOString().split("T")[0]);
+const date = ref<string>("");
 const time = ref<string>("");
 const parcoursSelected = ref<string>("");
 const boostsSelected = ref<string[]>([]);

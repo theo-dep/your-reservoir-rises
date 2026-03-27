@@ -24,7 +24,7 @@
         <p class="welcome-description">
           Application de saisie des montées pour les participants du challenge.
           Les données sont enregistrées dans la Google Sheet collaborative de
-          {{ new Date().getFullYear() }} via votre compte Google.
+          {{ currentYear() }} via votre compte Google.
         </p>
         <p class="welcome-subtitle">
           Connectez-vous pour enregistrer une montée.
@@ -47,6 +47,7 @@ import { onMounted } from "vue";
 import { useGoogleAuth } from "@/composables/useGoogleAuth";
 import { useTables } from "@/composables/useTables";
 import TableForm from "@/components/TableForm.vue";
+import { currentYear } from "@/utils/Date";
 
 const { isReady, isSignedIn, isTokenRestored, initialize, signIn, signOut } =
   useGoogleAuth();

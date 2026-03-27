@@ -6,30 +6,7 @@
 
 .placeholder {
   color: var(--c-disable);
-}
-
-input[type="time"] {
-  color: transparent;
-
-  &:invalid {
-    &:before {
-      color: var(--c-disable);
-      content: attr(placeholder);
-      padding-left: 2px;
-      pointer-events: none;
-      position: absolute;
-    }
-  }
-
-  &:valid,
-  &:focus,
-  &:active {
-    color: var(--c-text);
-
-    &:before {
-      display: none;
-    }
-  }
+  font-size: 0.875rem;
 }
 
 .input,
@@ -64,23 +41,35 @@ input[type="time"] {
   box-shadow: 0 0 0 3px var(--c-focus-shadow);
 }
 
-.select-wrap select,
-.input[type="date"],
-.input[type="time"] {
-  cursor: pointer;
+.number {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
 }
 
-.input[type="date"]::-webkit-calendar-picker-indicator,
-.input[type="time"]::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-  /* https://angel-rs.github.io/css-color-filter-generator/ --c-text */
-  filter: invert(88%) sepia(22%) saturate(400%) hue-rotate(5deg)
-    brightness(102%) contrast(90%);
+.number-field {
+  width: 100%;
 }
 
-.input[type="date"]:hover::-webkit-calendar-picker-indicator,
-.input[type="time"]:hover::-webkit-calendar-picker-indicator {
-  /* https://angel-rs.github.io/css-color-filter-generator/ --c-muted */
-  filter: invert(65%) sepia(25%) saturate(600%) hue-rotate(55deg)
-    brightness(95%) contrast(85%);
+.number-part {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.875rem;
+  color: var(--c-text);
+  text-align: center;
+  appearance: textfield;
+  -moz-appearance: textfield; /* Firefox fallback */
+}
+
+.number-part::-webkit-outer-spin-button,
+.number-part::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.number-sep {
+  color: var(--c-text);
+  font-size: 1rem;
+  margin-bottom: 2px;
 }
