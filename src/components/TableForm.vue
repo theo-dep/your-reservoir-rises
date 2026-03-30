@@ -51,38 +51,34 @@
     <button
       class="input submit"
       type="submit"
-      :disabled="
-        coursesStore.loading ||
-        boostsStore.loading ||
-        nameValidationStore.validating ||
-        submitting ||
-        nameValidationStore.nameValid === false
-      "
+      :disabled="isButtonDisabled"
+      :class="{
+        loading: isLoading || submitting || nameValidationStore.validating,
+      }"
     >
-      {{
-        submitting
-          ? "Envoi…"
-          : nameValidationStore.validating
-            ? "Vérification…"
-            : "Envoyer"
-      }}
+      <span
+        v-if="isLoading || submitting || nameValidationStore.validating"
+        class="spinner"
+      ></span>
+      <template v-else>Envoyer</template>
     </button>
   </form>
 
-  <p v-if="nameValidationStore.nameValid === false" class="error">
-    ⚠️ Nom ou prénom introuvable.
-  </p>
-  <p v-if="coursesStore.error" class="error">⚠️ {{ coursesStore.error }}</p>
-  <p v-if="boostsStore.error" class="error">⚠️ {{ boostsStore.error }}</p>
-  <p v-if="riseSubmitted === false" class="error">
-    ⚠️ Échec de l'envoie de la montée.
+  <p v-if="statusMessage" :class="statusMessage.type">
+    {{ statusMessage.type === "error" ? "⚠️" : "ℹ️" }} {{ statusMessage.text }}
   </p>
 
-  <p v-if="riseSubmitted === true" class="success">✅ Montée enregistrée.</p>
+  <p v-if="riseSubmitted === false" class="error">
+    ⚠️ Échec de l'envoi de la montée. Veuillez réessayer.
+  </p>
+
+  <p v-if="riseSubmitted === true" class="success">
+    ✅ Montée enregistrée avec succès !
+  </p>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import DateInput from "@/components/DateInput.vue";
 import DurationInput from "@/components/DurationInput.vue";
 import SingleSelect from "@/components/SingleSelect.vue";
@@ -108,6 +104,37 @@ const comments = ref<string>("");
 
 const riseSubmitted = ref<boolean | null>(null);
 const submitting = ref<boolean>(false);
+
+// form state
+const isLoading = computed(() => coursesStore.loading || boostsStore.loading);
+const isButtonDisabled = computed(
+  () =>
+    isLoading.value ||
+    coursesStore.error !== null ||
+    boostsStore.error !== null ||
+    nameValidationStore.validating ||
+    submitting.value ||
+    nameValidationStore.nameValid === false,
+);
+
+const statusMessage = computed(() => {
+  if (riseSubmitted.value === true) return null;
+  if (riseSubmitted.value === false) return null;
+  if (boostsStore.loading && !coursesStore.loading)
+    return { type: "info", text: "Chargement des boosts…" };
+  if (isLoading.value)
+    return { type: "info", text: "Chargement des parcours et boosts…" };
+  if (coursesStore.error)
+    return { type: "error", text: `Erreur parcours : ${coursesStore.error}` };
+  if (boostsStore.error)
+    return { type: "error", text: `Erreur boosts : ${boostsStore.error}` };
+  if (nameValidationStore.nameValid === false)
+    return {
+      type: "error",
+      text: "Le nom et prénom saisis sont introuvables dans la liste des participants.",
+    };
+  return null;
+});
 
 async function handleRefresh(): Promise<void> {
   await Promise.all([
@@ -161,6 +188,28 @@ async function handleSubmit(): Promise<void> {
 </script>
 
 <style scoped>
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.info {
+  font-size: 0.8rem;
+  color: var(--c-info);
+  margin-top: 4px;
+}
+
 .error {
   font-size: 0.8rem;
   color: var(--c-error);
@@ -185,8 +234,13 @@ async function handleSubmit(): Promise<void> {
   color: var(--c-white);
 }
 
-.submit:hover {
+.submit:hover:not(:disabled) {
   opacity: 0.88;
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 @media screen and (min-width: 600px) {
