@@ -25,7 +25,12 @@
 </template>
 
 <script setup lang="ts">
-import { currentDay, currentMonth, currentYear } from "@/utils/Date";
+import {
+  currentDay,
+  currentMonth,
+  currentYear,
+  dateToString,
+} from "@/utils/Date";
 import { ref, watch } from "vue";
 import NumberInput from "@/components/NumberInput.vue";
 
@@ -44,7 +49,7 @@ watch([days, months, years], () => {
   const d = days.value || currentDay().toString();
   const m = months.value || currentMonth().toString();
   const y = years.value || currentYear().toString();
-  model.value = `${d}/${m}/${y}`;
+  model.value = dateToString(d, m, y);
 });
 </script>
 

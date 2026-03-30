@@ -1,8 +1,10 @@
 import { readonly, ref } from "vue";
 import { defineStore } from "pinia";
-import { runScript } from "@/utils/GoogleScriptAPI";
+import { useGoogleScriptStore } from "@/stores/useGoogleScriptStore";
 
 export const useCoursesStore = defineStore("courses", () => {
+  const googleScriptStore = useGoogleScriptStore();
+
   const courses = ref<string[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);
@@ -12,8 +14,11 @@ export const useCoursesStore = defineStore("courses", () => {
     error.value = null;
 
     try {
-      const coursesRecord = await runScript("courseNames");
-      courses.value = coursesRecord as string[];
+      const result =
+        await googleScriptStore.executeScript<string[]>("courseNames");
+      if (result) {
+        courses.value = result;
+      }
     } catch (err: unknown) {
       error.value = err instanceof Error ? err.message : "Unknown error";
       courses.value = [];

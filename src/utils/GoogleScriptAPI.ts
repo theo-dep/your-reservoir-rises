@@ -1,9 +1,10 @@
 import { GOOGLE_CONFIG } from "@/config/google";
 
-async function runScript(
+async function runScript<T>(
   functionName: string,
-  parameters: unknown[] = [],
-): Promise<unknown> {
+  parameters: string[],
+  signal?: AbortSignal,
+): Promise<T> {
   // https://developers.google.com/apps-script/api/reference/rest/v1/scripts/run
   const token = window.gapi.client.getToken();
   const res = await fetch(
@@ -14,12 +15,16 @@ async function runScript(
         Authorization: `Bearer ${token?.access_token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ function: functionName, parameters: parameters }),
+      body: JSON.stringify({
+        function: functionName,
+        parameters: parameters,
+      }),
+      signal, // to cancel the request
     },
   );
   const data = await res.json();
   if (data.error) throw new Error(data.error.message);
-  return data.response?.result;
+  return data.response?.result as T;
 }
 
 export { runScript };

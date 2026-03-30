@@ -88,6 +88,12 @@ import { useLocalNameStore } from "@/stores/useLocalNameStore";
 import { useCoursesStore } from "@/stores/useCoursesStore";
 import { useBoostsStore } from "@/stores/useBoostsStore";
 import { addRise } from "@/utils/Rise";
+import {
+  currentDay,
+  currentMonth,
+  currentYear,
+  dateToString,
+} from "@/utils/Date";
 
 const BOOST_SIZE = 3;
 
@@ -96,7 +102,13 @@ const localNameStore = useLocalNameStore();
 const coursesStore = useCoursesStore();
 const boostsStore = useBoostsStore();
 
-const date = ref<string>("");
+const date = ref<string>(
+  dateToString(
+    currentDay().toString(),
+    currentMonth().toString(),
+    currentYear().toString(),
+  ),
+);
 const time = ref<string>("");
 const parcoursSelected = ref<string>("");
 const boostsSelected = ref<string[]>([]);
