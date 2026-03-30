@@ -2,7 +2,7 @@
   <form class="container" @submit.prevent="handleSubmit">
     <input
       id="firstName"
-      v-model.lazy.trim="firstName"
+      v-model.lazy.trim="localNameStore.firstName"
       class="input"
       placeholder="Prénom"
       required
@@ -11,7 +11,7 @@
 
     <input
       id="lastName"
-      v-model.lazy.trim="lastName"
+      v-model.lazy.trim="localNameStore.lastName"
       class="input"
       placeholder="Nom"
       required
@@ -30,14 +30,14 @@
     <SingleSelect
       v-model="parcoursSelected"
       name="Parcours"
-      :values="courses"
+      :values="coursesStore.courses"
       :required="true"
     />
 
     <MultiSelect
       v-model="boostsSelected"
       name="Boosts"
-      :values="boosts"
+      :values="boostsStore.boosts"
       :max="BOOST_SIZE"
     />
 
@@ -52,20 +52,28 @@
       class="input submit"
       type="submit"
       :disabled="
-        coursesLoading ||
-        boostsLoading ||
-        validating ||
+        coursesStore.loading ||
+        boostsStore.loading ||
+        nameValidationStore.validating ||
         submitting ||
-        nameValid === false
+        nameValidationStore.nameValid === false
       "
     >
-      {{ submitting ? "Envoi…" : validating ? "Vérification…" : "Envoyer" }}
+      {{
+        submitting
+          ? "Envoi…"
+          : nameValidationStore.validating
+            ? "Vérification…"
+            : "Envoyer"
+      }}
     </button>
   </form>
 
-  <p v-if="nameValid === false" class="error">⚠️ Nom ou prénom introuvable.</p>
-  <p v-if="coursesError" class="error">⚠️ {{ coursesError }}</p>
-  <p v-if="boostsError" class="error">⚠️ {{ boostsError }}</p>
+  <p v-if="nameValidationStore.nameValid === false" class="error">
+    ⚠️ Nom ou prénom introuvable.
+  </p>
+  <p v-if="coursesStore.error" class="error">⚠️ {{ coursesStore.error }}</p>
+  <p v-if="boostsStore.error" class="error">⚠️ {{ boostsStore.error }}</p>
   <p v-if="riseSubmitted === false" class="error">
     ⚠️ Échec de l'envoie de la montée.
   </p>
@@ -79,27 +87,18 @@ import DateInput from "@/components/DateInput.vue";
 import DurationInput from "@/components/DurationInput.vue";
 import SingleSelect from "@/components/SingleSelect.vue";
 import MultiSelect from "@/components/MultiSelect.vue";
-import { useNameValidation } from "@/composables/useNameValidation";
-import { useLocalName } from "@/composables/useLocalName";
-import { useCourses } from "@/composables/useCourses";
-import { useBoosts } from "@/composables/useBoosts";
+import { useNameValidationStore } from "@/stores/useNameValidationStore";
+import { useLocalNameStore } from "@/stores/useLocalNameStore";
+import { useCoursesStore } from "@/stores/useCoursesStore";
+import { useBoostsStore } from "@/stores/useBoostsStore";
 import { addRise } from "@/utils/Rise";
 
 const BOOST_SIZE = 3;
 
-const { firstName, lastName } = useLocalName();
-const {
-  courses,
-  loading: coursesLoading,
-  error: coursesError,
-  fetchCourses,
-} = useCourses();
-const {
-  boosts,
-  loading: boostsLoading,
-  error: boostsError,
-  fetchBoosts,
-} = useBoosts();
+const nameValidationStore = useNameValidationStore();
+const localNameStore = useLocalNameStore();
+const coursesStore = useCoursesStore();
+const boostsStore = useBoostsStore();
 
 const date = ref<string>("");
 const time = ref<string>("");
@@ -110,18 +109,22 @@ const comments = ref<string>("");
 const riseSubmitted = ref<boolean | null>(null);
 const submitting = ref<boolean>(false);
 
-const { nameValid, validating, validateName } = useNameValidation();
-
 async function handleRefresh(): Promise<void> {
-  await Promise.all([fetchCourses(), fetchBoosts(date.value)]);
+  await Promise.all([
+    coursesStore.fetchCourses(),
+    boostsStore.fetchBoosts(date.value),
+  ]);
 }
 
 watch(date, async (newDate) => {
-  await fetchBoosts(newDate);
+  await boostsStore.fetchBoosts(newDate);
 });
 
 async function handleValidate(): Promise<void> {
-  await validateName(firstName.value, lastName.value);
+  await nameValidationStore.validateName(
+    localNameStore.firstName,
+    localNameStore.lastName,
+  );
 }
 
 onMounted(async () => {
@@ -136,8 +139,8 @@ async function handleSubmit(): Promise<void> {
   submitting.value = true;
 
   riseSubmitted.value = await addRise(
-    firstName.value,
-    lastName.value,
+    localNameStore.firstName,
+    localNameStore.lastName,
     date.value,
     time.value,
     parcoursSelected.value,

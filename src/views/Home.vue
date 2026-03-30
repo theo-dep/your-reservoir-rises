@@ -3,8 +3,10 @@
     <header>
       <span class="logo">Vos montées des réservoirs</span>
       <div class="controls">
-        <span v-if="!isReady" class="muted">Initialisation…</span>
-        <template v-else-if="!isSignedIn">
+        <span v-if="!googgleAuthStore.isReady" class="muted"
+          >Initialisation…</span
+        >
+        <template v-else-if="!googgleAuthStore.isSignedIn">
           <button class="btn btn-primary" @click="handleSignIn">
             Connexion
           </button>
@@ -17,7 +19,10 @@
     </header>
 
     <main>
-      <div v-if="!isSignedIn && isReady" class="welcome">
+      <div
+        v-if="!googgleAuthStore.isSignedIn && googgleAuthStore.isReady"
+        class="welcome"
+      >
         <h2 class="welcome-title">
           Bienvenue sur l'application "Challenge du réservoir"
         </h2>
@@ -30,7 +35,7 @@
           Connectez-vous pour enregistrer une montée.
         </p>
       </div>
-      <template v-else-if="isSignedIn">
+      <template v-else-if="googgleAuthStore.isSignedIn">
         <TableForm ref="tableFormRef" />
       </template>
     </main>
@@ -39,30 +44,29 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { useGoogleAuth } from "@/composables/useGoogleAuth";
+import { useGoogleAuthStore } from "@/stores/useGoogleAuthStore";
 import TableForm from "@/components/TableForm.vue";
 import { currentYear } from "@/utils/Date";
 
 const tableFormRef = ref<InstanceType<typeof TableForm> | null>(null);
 
-const { isReady, isSignedIn, isTokenRestored, initialize, signIn, signOut } =
-  useGoogleAuth();
+const googgleAuthStore = useGoogleAuthStore();
 
 onMounted(async () => {
-  await initialize();
+  await googgleAuthStore.initialize();
   // need popup permission
-  if (isTokenRestored.value && !isSignedIn.value) {
+  if (googgleAuthStore.isTokenRestored && !googgleAuthStore.isSignedIn) {
     await handleSignIn();
   }
 });
 
 async function handleSignIn(): Promise<void> {
   try {
-    await signIn();
+    await googgleAuthStore.signIn();
   } catch {
     // in case of access denied, signOut and signIn
-    signOut();
-    await signIn();
+    googgleAuthStore.signOut();
+    await googgleAuthStore.signIn();
   }
 }
 
@@ -71,7 +75,7 @@ async function handleRefresh(): Promise<void> {
 }
 
 function handleSignOut(): void {
-  signOut();
+  googgleAuthStore.signOut();
 }
 </script>
 

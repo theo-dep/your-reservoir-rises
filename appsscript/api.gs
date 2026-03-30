@@ -7,10 +7,14 @@ function courseNames() {
   return firstCol;
 }
 
-function boostNames(date) {
+function boostNames(dateString) {
   const sheet = spreadsheet.getSheetByName("Boosts");
   const data = sheet.getDataRange().getValues().slice(1);
-  const testDate = new Date(date);
+  const parts = dateString.split("/");
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1; // months start at 0
+  const year = parseInt(parts[2], 10);
+  const date = new Date(year, month, day);
 
   return data
     .filter((row) => {
@@ -21,7 +25,7 @@ function boostNames(date) {
       const endOfDay = new Date(end);
       endOfDay.setHours(23, 59, 59, 999);
 
-      return testDate >= new Date(start) && testDate <= endOfDay;
+      return date >= new Date(start) && date <= endOfDay;
     })
     .map((row) => row[0]); // Nom
 }
