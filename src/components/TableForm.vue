@@ -1,7 +1,5 @@
 <template>
-  <div v-if="loading" class="state">Chargement…</div>
-  <div v-else-if="error" class="state state-error">⚠️ {{ error }}</div>
-  <form v-else class="container" @submit.prevent="handleSubmit">
+  <form class="container" @submit.prevent="handleSubmit">
     <input
       id="firstName"
       v-model.lazy.trim="firstName"
@@ -32,7 +30,7 @@
     <SingleSelect
       v-model="parcoursSelected"
       name="Parcours"
-      :values="parcours"
+      :values="courses"
       :required="true"
     />
 
@@ -53,13 +51,21 @@
     <button
       class="input submit"
       type="submit"
-      :disabled="validating || submitting || nameValid === false"
+      :disabled="
+        coursesLoading ||
+        boostsLoading ||
+        validating ||
+        submitting ||
+        nameValid === false
+      "
     >
       {{ submitting ? "Envoi…" : validating ? "Vérification…" : "Envoyer" }}
     </button>
   </form>
 
   <p v-if="nameValid === false" class="error">⚠️ Nom ou prénom introuvable.</p>
+  <p v-if="coursesError" class="error">⚠️ {{ coursesError }}</p>
+  <p v-if="boostsError" class="error">⚠️ {{ boostsError }}</p>
   <p v-if="riseSubmitted === false" class="error">
     ⚠️ Échec de l'envoie de la montée.
   </p>
@@ -68,25 +74,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, watch } from "vue";
 import DateInput from "@/components/DateInput.vue";
 import DurationInput from "@/components/DurationInput.vue";
 import SingleSelect from "@/components/SingleSelect.vue";
 import MultiSelect from "@/components/MultiSelect.vue";
 import { useNameValidation } from "@/composables/useNameValidation";
 import { useLocalName } from "@/composables/useLocalName";
+import { useCourses } from "@/composables/useCourses";
+import { useBoosts } from "@/composables/useBoosts";
 import { addRise } from "@/utils/Rise";
-
-defineProps<{
-  parcours: readonly string[];
-  boosts: readonly string[];
-  loading: boolean;
-  error: string | null;
-}>();
 
 const BOOST_SIZE = 3;
 
 const { firstName, lastName } = useLocalName();
+const {
+  courses,
+  loading: coursesLoading,
+  error: coursesError,
+  fetchCourses,
+} = useCourses();
+const {
+  boosts,
+  loading: boostsLoading,
+  error: boostsError,
+  fetchBoosts,
+} = useBoosts();
 
 const date = ref<string>("");
 const time = ref<string>("");
@@ -99,9 +112,25 @@ const submitting = ref<boolean>(false);
 
 const { nameValid, validating, validateName } = useNameValidation();
 
+async function handleRefresh(): Promise<void> {
+  await Promise.all([fetchCourses(), fetchBoosts(date.value)]);
+}
+
+watch(date, async (newDate) => {
+  await fetchBoosts(newDate);
+});
+
 async function handleValidate(): Promise<void> {
   await validateName(firstName.value, lastName.value);
 }
+
+onMounted(async () => {
+  await handleRefresh();
+});
+
+defineExpose({
+  handleRefresh,
+});
 
 async function handleSubmit(): Promise<void> {
   submitting.value = true;
@@ -129,17 +158,6 @@ async function handleSubmit(): Promise<void> {
 </script>
 
 <style scoped>
-.state {
-  padding: 2rem 0;
-  text-align: center;
-  color: var(--c-muted);
-  font-size: 0.9rem;
-}
-
-.state-error {
-  color: var(--c-error);
-}
-
 .error {
   font-size: 0.8rem;
   color: var(--c-error);

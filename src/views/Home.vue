@@ -31,28 +31,22 @@
         </p>
       </div>
       <template v-else-if="isSignedIn">
-        <TableForm
-          :parcours="parcours"
-          :boosts="boosts"
-          :loading="loading"
-          :error="error"
-        />
+        <TableForm ref="tableFormRef" />
       </template>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useGoogleAuth } from "@/composables/useGoogleAuth";
-import { useTables } from "@/composables/useTables";
 import TableForm from "@/components/TableForm.vue";
 import { currentYear } from "@/utils/Date";
 
+const tableFormRef = ref<InstanceType<typeof TableForm> | null>(null);
+
 const { isReady, isSignedIn, isTokenRestored, initialize, signIn, signOut } =
   useGoogleAuth();
-const { parcours, boosts, loading, error, fetchTables, clearTables } =
-  useTables();
 
 onMounted(async () => {
   await initialize();
@@ -70,16 +64,14 @@ async function handleSignIn(): Promise<void> {
     signOut();
     await signIn();
   }
-  await handleRefresh();
 }
 
 async function handleRefresh(): Promise<void> {
-  await fetchTables();
+  await tableFormRef.value?.handleRefresh();
 }
 
 function handleSignOut(): void {
   signOut();
-  clearTables();
 }
 </script>
 

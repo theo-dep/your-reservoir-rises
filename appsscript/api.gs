@@ -7,10 +7,10 @@ function courseNames() {
   return firstCol;
 }
 
-function boostNames() {
+function boostNames(date) {
   const sheet = spreadsheet.getSheetByName("Boosts");
   const data = sheet.getDataRange().getValues().slice(1);
-  const now = new Date();
+  const testDate = new Date(date);
 
   return data
     .filter((row) => {
@@ -21,7 +21,7 @@ function boostNames() {
       const endOfDay = new Date(end);
       endOfDay.setHours(23, 59, 59, 999);
 
-      return now >= new Date(start) && now <= endOfDay;
+      return testDate >= new Date(start) && testDate <= endOfDay;
     })
     .map((row) => row[0]); // Nom
 }

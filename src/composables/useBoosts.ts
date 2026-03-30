@@ -1,45 +1,31 @@
 import { ref, readonly } from "vue";
 import { runScript } from "@/utils/GoogleScriptAPI";
 
-const parcours = ref<string[]>([]);
 const boosts = ref<string[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
 
-async function fetchTables(): Promise<void> {
+async function fetchBoosts(date: string): Promise<void> {
   loading.value = true;
   error.value = null;
 
   try {
-    const [parcoursRecord, boostsRecord] = await Promise.all([
-      runScript("courseNames"),
-      runScript("boostNames"),
-    ]);
-
-    parcours.value = parcoursRecord as string[];
+    const boostsRecord = await runScript("boostNames", [date]);
     boosts.value = boostsRecord as string[];
+    error.value = null;
   } catch (err: unknown) {
     error.value = err instanceof Error ? err.message : "Unknown error";
-    parcours.value = [];
     boosts.value = [];
   } finally {
     loading.value = false;
   }
 }
 
-function clearTables(): void {
-  parcours.value = [];
-  boosts.value = [];
-  error.value = null;
-}
-
-export function useTables() {
+export function useBoosts() {
   return {
-    parcours: readonly(parcours),
     boosts: readonly(boosts),
     loading: readonly(loading),
     error: readonly(error),
-    fetchTables,
-    clearTables,
+    fetchBoosts,
   };
 }
