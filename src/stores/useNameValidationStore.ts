@@ -1,9 +1,11 @@
 import { readonly, ref } from "vue";
 import { defineStore } from "pinia";
-import { runScript } from "@/utils/GoogleScriptAPI";
+import { useGoogleScriptStore } from "@/stores/useGoogleScriptStore";
 import { mergeName, formatFirstName, formatLastName } from "@/utils/SheetFile";
 
 export const useNameValidationStore = defineStore("nameValidation", () => {
+  const googleScriptStore = useGoogleScriptStore();
+
   const nameValid = ref<boolean | null>(null);
   const validating = ref(false);
 
@@ -17,10 +19,13 @@ export const useNameValidationStore = defineStore("nameValidation", () => {
     validating.value = true;
     nameValid.value = null;
     try {
-      const result = await runScript("validateName", [
-        mergeName(firstName, lastName),
-      ]);
-      nameValid.value = result as boolean;
+      const result = await googleScriptStore.executeScript<boolean>(
+        "validateName",
+        [mergeName(firstName, lastName)],
+      );
+      if (result) {
+        nameValid.value = result;
+      }
     } finally {
       validating.value = false;
     }

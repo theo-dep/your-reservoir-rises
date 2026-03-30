@@ -10,4 +10,8 @@ function currentYear(): number {
   return new Date().getFullYear();
 }
 
-export { currentDay, currentMonth, currentYear };
+function dateToString(day: string, month: string, year: string): string {
+  return `${day}/${month}/${year}`;
+}
+
+export { currentDay, currentMonth, currentYear, dateToString };
