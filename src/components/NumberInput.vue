@@ -40,7 +40,8 @@ function update(e: Event) {
 }
 
 function padNumber(number: string): string {
-  return number.padStart(2, "0");
+  const padded = number.padStart(2, "0");
+  return padded.slice(-2);
 }
 
 function pad() {
