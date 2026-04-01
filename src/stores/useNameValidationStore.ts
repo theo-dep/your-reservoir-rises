@@ -23,9 +23,7 @@ export const useNameValidationStore = defineStore("nameValidation", () => {
         "validateName",
         [mergeName(firstName, lastName)],
       );
-      if (result) {
-        nameValid.value = result;
-      }
+      nameValid.value = result;
     } finally {
       validating.value = false;
     }
